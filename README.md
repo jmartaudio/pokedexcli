@@ -1,6 +1,6 @@
-#PokedexCLI
+# PokedexCLI
 
-##Boot.dev project
+## Boot.dev project
 built with https://pokeapi.co/ api
 
 - "help": "Displays a help message"
