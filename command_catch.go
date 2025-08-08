@@ -17,11 +17,14 @@ func commandCatch(cfg *config, args ...string) error {
 	if err != nil {
 		return err
 	}
-	randomNumber := rand.IntN(256)
-	if randomNumber > pokemonResp.BaseExperience {
-		cfg.Pokedex[name] = pokemonResp
-		fmt.Printf("You Caught %s\n\n", name)
+	randomNumber := rand.IntN(pokemonResp.BaseExperience)
+	if randomNumber > 40 {
+		fmt.Printf("%s escaped!\n", pokemonResp.Name)
 	}
-	
+
+	fmt.Printf("You Caught %s\n", name)
+	fmt.Println("You may now inspect it with the inspect command.")
+
+	cfg.Pokedex[name] = pokemonResp
 	return nil
 }
