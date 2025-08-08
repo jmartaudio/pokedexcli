@@ -2,52 +2,46 @@ package pokeapi
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 )
 
-// Explore Location -
-func (c *Client) ExploreLocations(area *string) (LocationInfo, error) {
-	url := baseURL + "/location-area/" + *area
-	fmt.Printf("Exploring... %s\n\n", url)
-	if *area == "" {
-		fmt.Println("Enter Location to Expolre")
+// GetLocationExplore -
+func (c *Client) ExploreLocations(locationName string) (LocationExplore, error) {
+	url := baseURL + "/location-area/" + locationName
+
+	if val, ok := c.cache.Get(url); ok {
+		locationResp := LocationExplore{}
+		err := json.Unmarshal(val, &locationResp)
+		if err != nil {
+			return LocationExplore{}, err
+		}
+		return locationResp, nil
 	}
 
-	dat, ok := c.cache.Get(url)
-	if !ok {
-		req, err := http.NewRequest("GET", url, nil)
-		if err != nil {
-			return LocationInfo{}, err
-		}
-		resp, err := c.httpClient.Do(req)
-		if err != nil {
-			return LocationInfo{}, err
-		}
-		defer resp.Body.Close()
-		
-		dat, err := io.ReadAll(resp.Body)
-		if err != nil {
-			return LocationInfo{}, err
-		}
-
-		c.cache.Add(url, dat)
-
-		locExpResp := LocationInfo{}
-		err = json.Unmarshal(dat, &locExpResp)
-		if err != nil {
-			return LocationInfo{}, err
-		}
-
-		return locExpResp, nil
-	} else {
-		locExpResp := LocationInfo{}
-		err := json.Unmarshal(dat, &locExpResp)
-		if err != nil {
-			return LocationInfo{}, err
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return LocationExplore{}, err
 	}
 
-	return locExpResp, nil
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return LocationExplore{}, err
 	}
+	defer resp.Body.Close()
+
+	dat, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return LocationExplore{}, err
+	}
+
+	locationResp := LocationExplore{}
+	err = json.Unmarshal(dat, &locationResp)
+	if err != nil {
+		return LocationExplore{}, err
+	}
+
+	c.cache.Add(url, dat)
+
+	return locationResp, nil
 }
